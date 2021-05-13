@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model categoria {
+  categora_id Int        @id @default(autoincrement()) @db.SmallInt
+  nombre      String     @unique @db.VarChar(60)
+  imagen      String     @db.VarChar(300)
+  descripcion String     @db.VarChar(150)
+  producto    producto[]
+}
+
+model cliente {
+  cliente_id String    @id @db.VarChar(25)
+  nombre     String    @db.VarChar(60)
+  apellido   String    @db.VarChar(60)
+  id_tipo_id String    @db.Char(1)
+  telefono   BigInt
+  direccion  String    @db.VarChar(60)
+  nacimiento DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
+  tipo_id    tipo_id   @relation(fields: [id_tipo_id], references: [id_tipo_id])
+  factura    factura[]
+}
+
+model descuento_producto {
+  producto_id Int
+  fecha       DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
+  porcentaje  Int      @default(20) @db.SmallInt
+  producto    producto @relation(fields: [producto_id], references: [producto_id])
+
+  @@id([producto_id, fecha])
+}
+
+model detalle {
+  detalle_id       Int                @id @default(autoincrement())
+  nombre           String             @unique @db.VarChar(60)
+  tipo             String             @db.Char(1)
+  detalle_producto detalle_producto[]
+}
+
+model detalle_producto {
+  producto_id Int
+  detalle_id  Int
+  detalle     detalle  @relation(fields: [detalle_id], references: [detalle_id])
+  producto    producto @relation(fields: [producto_id], references: [producto_id])
+
+  @@id([producto_id, detalle_id])
+}
+
+model efectivo {
+  factura_id Int     @id
+  factura    factura @relation(fields: [factura_id], references: [factura_id])
+}
+
+model factura {
+  factura_id       Int                @id @default(autoincrement())
+  numero           String             @db.Uuid
+  sede_id          Int                @db.SmallInt
+  cliente_id       String             @db.VarChar(25)
+  tiempo           DateTime           @default(now()) @db.Timestamp(6)
+  cliente          cliente            @relation(fields: [cliente_id], references: [cliente_id])
+  sede             sede               @relation(fields: [sede_id], references: [sede_id])
+  efectivo         efectivo?
+  factura_producto factura_producto[]
+  tarjeta          tarjeta?
+  venta            venta[]
+}
+
+model factura_producto {
+  factura_id  Int
+  producto_id Int
+  cantidad    Int      @db.SmallInt
+  factura     factura  @relation(fields: [factura_id], references: [factura_id])
+  producto    producto @relation(fields: [producto_id], references: [producto_id])
+
+  @@id([factura_id, producto_id])
+}
+
+model horario {
+  sede_id Int      @db.SmallInt
+  dia     String   @db.VarChar(9)
+  abre    DateTime @default(dbgenerated("'08:00:00'::time without time zone")) @db.Time(6)
+  cierra  DateTime @default(dbgenerated("'16:00:00'::time without time zone")) @db.Time(6)
+  sede    sede     @relation(fields: [sede_id], references: [sede_id])
+
+  @@id([sede_id, dia])
+}
+
+model iva_producto {
+  producto_id Int
+  fecha       DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
+  porcentaje  Int      @default(19) @db.SmallInt
+  producto    producto @relation(fields: [producto_id], references: [producto_id])
+
+  @@id([producto_id, fecha])
+}
+
+model precio_producto {
+  producto_id Int
+  fecha       DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
+  precio      BigInt
+  producto    producto @relation(fields: [producto_id], references: [producto_id])
+
+  @@id([producto_id, fecha])
+}
+
+model producto {
+  producto_id                     Int                               @id @default(autoincrement())
+  nombre                          String                            @unique @db.VarChar(60)
+  codigo                          String                            @db.VarChar(30)
+  categoria_id                    Int                               @default(autoincrement()) @db.SmallInt
+  imagen                          String                            @unique @db.VarChar(300)
+  descripcion                     String                            @unique @db.VarChar(300)
+  categoria                       categoria                         @relation(fields: [categoria_id], references: [categora_id])
+  descuento_producto              descuento_producto[]
+  detalle_producto                detalle_producto[]
+  factura_producto                factura_producto[]
+  iva_producto                    iva_producto[]
+  precio_producto                 precio_producto[]
+  producto_disponibilidad_final   producto_disponibilidad_final[]
+  producto_disponibilidad_inicial producto_disponibilidad_inicial[]
+}
+
+model producto_disponibilidad_final {
+  producto_id Int
+  tiempo      DateTime @default(now()) @db.Timestamp(6)
+  stock_final Int
+  producto    producto @relation(fields: [producto_id], references: [producto_id])
+
+  @@id([producto_id, tiempo])
+}
+
+model producto_disponibilidad_inicial {
+  producto_id   Int
+  tiempo        DateTime @default(now()) @db.Timestamp(6)
+  stock_inicial Int
+  producto      producto @relation(fields: [producto_id], references: [producto_id])
+
+  @@id([producto_id, tiempo])
+}
+
+model sede {
+  sede_id        Int       @id @default(autoincrement()) @db.SmallInt
+  codigo         String    @db.VarChar(40)
+  nit            String    @db.VarChar(20)
+  direccion      String    @unique @db.VarChar(60)
+  telefono       BigInt    @unique
+  control_manual Boolean   @default(false)
+  abierto        Boolean   @default(false)
+  factura        factura[]
+  horario        horario[]
+}
+
+model tarjeta {
+  factura_id         Int      @id
+  tarjeta_id         String   @db.VarChar(16)
+  aprobacion_id      String   @db.VarChar(25)
+  aprobacion_tiempo  DateTime @default(now()) @db.Timestamp(6)
+  aprobacion_entidad String   @db.VarChar(50)
+  tipo_tarjeta       String   @db.Char(1)
+  factura            factura  @relation(fields: [factura_id], references: [factura_id])
+}
+
+model tipo_id {
+  id_tipo_id String    @id @db.Char(1)
+  nombre     String    @unique @db.VarChar(35)
+  cliente    cliente[]
+}
+
+model usuario {
+  usuario_id BigInt  @id @default(autoincrement())
+  cuenta_id  String  @unique @db.VarChar(80)
+  correo     String  @unique @db.VarChar(200)
+  nombre     String  @db.VarChar(200)
+  admin      Boolean @default(false)
+  venta      venta[]
+}
+
+model venta {
+  usuario_id BigInt
+  factura_id Int
+  factura    factura @relation(fields: [factura_id], references: [factura_id])
+  usuario    usuario @relation(fields: [usuario_id], references: [usuario_id])
+
+  @@id([usuario_id, factura_id])
+}

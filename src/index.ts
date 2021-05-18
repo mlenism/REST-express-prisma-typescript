@@ -5,6 +5,7 @@ import tipoIdR from './routes/TipoIdR';
 import LoginR from './routes/LoginR';
 import categoriaR from './routes/CategoriaR';
 import usuarioR from './routes/UsuarioR';
+import productoR from './routes/ProductoR';
 
 class Server {
 
@@ -28,6 +29,7 @@ class Server {
     this.app.use('/login', LoginR);
     this.app.use('/categoria', categoriaR);
     this.app.use('/usuario', usuarioR);
+    this.app.use('/producto', productoR);
   }
 
   public start(): void {

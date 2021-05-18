@@ -8,38 +8,50 @@ datasource db {
 }
 
 model categoria {
-  categora_id Int        @id @default(autoincrement()) @db.SmallInt
-  nombre      String     @unique @db.VarChar(60)
-  imagen      String     @db.VarChar(300)
-  descripcion String     @db.VarChar(150)
-  producto    producto[]
+  categoria_id Int        @id @default(autoincrement()) @db.SmallInt
+  nombre       String     @unique @db.VarChar(60)
+  imagen       String     @db.VarChar(300)
+  descripcion  String     @db.VarChar(150)
+  producto     producto[]
 }
 
 model cliente {
-  cliente_id String    @id @db.VarChar(25)
-  nombre     String    @db.VarChar(60)
-  apellido   String    @db.VarChar(60)
-  id_tipo_id String    @db.Char(1)
-  telefono   BigInt
-  direccion  String    @db.VarChar(60)
-  nacimiento DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
-  tipo_id    tipo_id   @relation(fields: [id_tipo_id], references: [id_tipo_id])
-  factura    factura[]
+  cliente_id     Int       @id @default(autoincrement())
+  cliente_doc_id String    @unique @db.VarChar(25)
+  nombre         String    @db.VarChar(60)
+  apellido       String    @db.VarChar(60)
+  id_tipo_id     String    @db.Char(1)
+  telefono       String    @db.VarChar(16)
+  direccion      String    @db.VarChar(60)
+  nacimiento     DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
+  tipo_id        tipo_id   @relation(fields: [id_tipo_id], references: [id_tipo_id])
+  factura        factura[]
+}
+
+model descuento {
+  descuento_id       Int                  @id @default(autoincrement())
+  fecha_inicial      DateTime             @default(dbgenerated("CURRENT_DATE")) @db.Date
+  fecha_final        DateTime             @default(dbgenerated("(CURRENT_DATE + 1)")) @db.Date
+  porcentaje         Int                  @default(20) @db.SmallInt
+  descuento_producto descuento_producto[]
+
+  @@unique([fecha_inicial, fecha_final, porcentaje], name: "descuento_fecha_inicial_fecha_final_porcentaje_key")
 }
 
 model descuento_producto {
-  producto_id Int
-  fecha       DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
-  porcentaje  Int      @default(20) @db.SmallInt
-  producto    producto @relation(fields: [producto_id], references: [producto_id])
+  producto_id  Int
+  descuento_id Int
+  descuento    descuento @relation(fields: [descuento_id], references: [descuento_id])
+  producto     producto  @relation(fields: [producto_id], references: [producto_id])
 
-  @@id([producto_id, fecha])
+  @@id([producto_id, descuento_id])
 }
 
 model detalle {
   detalle_id       Int                @id @default(autoincrement())
+  detalle_tipo_id  String             @db.Char(1)
   nombre           String             @unique @db.VarChar(60)
-  tipo             String             @db.Char(1)
+  detalle_tipo     detalle_tipo       @relation(fields: [detalle_tipo_id], references: [detalle_tipo_id])
   detalle_producto detalle_producto[]
 }
 
@@ -52,22 +64,23 @@ model detalle_producto {
   @@id([producto_id, detalle_id])
 }
 
-model efectivo {
-  factura_id Int     @id
-  factura    factura @relation(fields: [factura_id], references: [factura_id])
+model detalle_tipo {
+  detalle_tipo_id String    @id @db.Char(1)
+  nombre          String    @unique @db.VarChar(35)
+  detalle         detalle[]
 }
 
 model factura {
   factura_id       Int                @id @default(autoincrement())
-  numero           String             @db.Uuid
+  numero           String             @unique @db.Uuid
   sede_id          Int                @db.SmallInt
-  cliente_id       String             @db.VarChar(25)
+  cliente_id       Int
   tiempo           DateTime           @default(now()) @db.Timestamp(6)
   cliente          cliente            @relation(fields: [cliente_id], references: [cliente_id])
   sede             sede               @relation(fields: [sede_id], references: [sede_id])
-  efectivo         efectivo?
   factura_producto factura_producto[]
-  tarjeta          tarjeta?
+  pago_efectivo    pago_efectivo?
+  pago_tarjeta     pago_tarjeta[]
   venta            venta[]
 }
 
@@ -91,32 +104,70 @@ model horario {
   @@id([sede_id, dia])
 }
 
+model iva {
+  iva_id       Int            @id @default(autoincrement()) @db.SmallInt
+  fecha        DateTime       @default(dbgenerated("CURRENT_DATE")) @db.Date
+  porcentaje   Int            @default(19) @db.SmallInt
+  iva_producto iva_producto[]
+
+  @@unique([fecha, porcentaje], name: "iva_fecha_porcentaje_key")
+}
+
 model iva_producto {
   producto_id Int
-  fecha       DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
-  porcentaje  Int      @default(19) @db.SmallInt
+  iva_id      Int      @db.SmallInt
+  iva         iva      @relation(fields: [iva_id], references: [iva_id])
   producto    producto @relation(fields: [producto_id], references: [producto_id])
 
-  @@id([producto_id, fecha])
+  @@id([producto_id, iva_id])
+}
+
+model pago_efectivo {
+  factura_id Int     @id
+  pago       Int
+  factura    factura @relation(fields: [factura_id], references: [factura_id])
+}
+
+model pago_tarjeta {
+  factura_id         Int
+  tipo_tarjeta_id    String       @db.Char(1)
+  tarjeta_id         String       @db.VarChar(16)
+  aprobacion_id      String       @db.VarChar(25)
+  aprobacion_tiempo  DateTime     @default(now()) @db.Timestamp(6)
+  aprobacion_entidad String       @db.VarChar(50)
+  pago               Int
+  factura            factura      @relation(fields: [factura_id], references: [factura_id])
+  tipo_tarjeta       tipo_tarjeta @relation(fields: [tipo_tarjeta_id], references: [tipo_tarjeta_id])
+
+  @@id([factura_id, tipo_tarjeta_id])
+}
+
+model precio {
+  precio_id       Int               @id @default(autoincrement())
+  fecha           DateTime          @default(dbgenerated("CURRENT_DATE")) @db.Date
+  precio          Int
+  precio_producto precio_producto[]
+
+  @@unique([fecha, precio], name: "precio_fecha_precio_key")
 }
 
 model precio_producto {
   producto_id Int
-  fecha       DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
-  precio      BigInt
+  precio_id   Int
+  precio      precio   @relation(fields: [precio_id], references: [precio_id])
   producto    producto @relation(fields: [producto_id], references: [producto_id])
 
-  @@id([producto_id, fecha])
+  @@id([producto_id, precio_id])
 }
 
 model producto {
   producto_id                     Int                               @id @default(autoincrement())
-  nombre                          String                            @unique @db.VarChar(60)
-  codigo                          String                            @db.VarChar(30)
-  categoria_id                    Int                               @default(autoincrement()) @db.SmallInt
+  nombre                          String                            @unique @db.VarChar(120)
+  codigo                          String                            @unique @db.VarChar(30)
+  categoria_id                    Int                               @db.SmallInt
   imagen                          String                            @unique @db.VarChar(300)
   descripcion                     String                            @unique @db.VarChar(300)
-  categoria                       categoria                         @relation(fields: [categoria_id], references: [categora_id])
+  categoria                       categoria                         @relation(fields: [categoria_id], references: [categoria_id])
   descuento_producto              descuento_producto[]
   detalle_producto                detalle_producto[]
   factura_producto                factura_producto[]
@@ -149,21 +200,11 @@ model sede {
   codigo         String    @db.VarChar(40)
   nit            String    @db.VarChar(20)
   direccion      String    @unique @db.VarChar(60)
-  telefono       BigInt    @unique
+  telefono       String    @unique @db.VarChar(16)
   control_manual Boolean   @default(false)
   abierto        Boolean   @default(false)
   factura        factura[]
   horario        horario[]
-}
-
-model tarjeta {
-  factura_id         Int      @id
-  tarjeta_id         String   @db.VarChar(16)
-  aprobacion_id      String   @db.VarChar(25)
-  aprobacion_tiempo  DateTime @default(now()) @db.Timestamp(6)
-  aprobacion_entidad String   @db.VarChar(50)
-  tipo_tarjeta       String   @db.Char(1)
-  factura            factura  @relation(fields: [factura_id], references: [factura_id])
 }
 
 model tipo_id {
@@ -172,8 +213,14 @@ model tipo_id {
   cliente    cliente[]
 }
 
+model tipo_tarjeta {
+  tipo_tarjeta_id String         @id @db.Char(1)
+  nombre          String         @unique @db.VarChar(40)
+  pago_tarjeta    pago_tarjeta[]
+}
+
 model usuario {
-  usuario_id BigInt  @id @default(autoincrement())
+  usuario_id Int     @id @default(autoincrement())
   cuenta_id  String  @unique @db.VarChar(80)
   correo     String  @unique @db.VarChar(200)
   nombre     String  @db.VarChar(200)
@@ -182,7 +229,7 @@ model usuario {
 }
 
 model venta {
-  usuario_id BigInt
+  usuario_id Int
   factura_id Int
   factura    factura @relation(fields: [factura_id], references: [factura_id])
   usuario    usuario @relation(fields: [usuario_id], references: [usuario_id])

@@ -4,7 +4,9 @@ import { prisma } from '../Services/Services';
 class CategoriaC {
 
   public async getMany(req: Request, res: Response): Promise<Response> {
+    console.log(`\n****Get Many Categoria****\n`)
     try {
+      console.log(req.body)
       const many = await prisma.categoria.findMany({
         select: {
           nombre: true,
@@ -12,8 +14,11 @@ class CategoriaC {
           descripcion: true
         }
       });
-      console.log(many)
-      return res.status(200).send(many);
+      // Logs
+      many.forEach(element => {
+        console.log(element.nombre)
+      });
+      return res.status(200).json(many);
     } catch (e) {
       console.log(e);
       return res.status(500);

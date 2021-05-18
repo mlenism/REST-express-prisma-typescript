@@ -1,10 +1,10 @@
 CREATE TABLE categoria
 (
-    categora_id SMALLSERIAL NOT NULL,
+    categoria_id SMALLSERIAL NOT NULL,
     nombre VARCHAR(60) NOT NULL,
     imagen VARCHAR(300) NOT NULL,
     descripcion VARCHAR(150) NOT NULL,
-    PRIMARY KEY (categora_id),
+    PRIMARY KEY (categoria_id),
     UNIQUE (nombre)
 );
 
@@ -16,9 +16,25 @@ CREATE TABLE tipo_id
     UNIQUE (nombre)
 );
 
+CREATE TABLE detalle_tipo
+(
+    detalle_tipo_id CHAR NOT NULL,
+    nombre VARCHAR(35) NOT NULL,
+    PRIMARY KEY (detalle_tipo_id),
+    UNIQUE (nombre)
+);
+
+CREATE TABLE tipo_tarjeta
+(
+    tipo_tarjeta_id CHAR NOT NULL,
+    nombre VARCHAR(40) NOT NULL,
+    PRIMARY KEY (tipo_tarjeta_id),
+    UNIQUE (nombre)
+);
+
 CREATE TABLE usuario
 (
-    usuario_id BIGSERIAL NOT NULL,
+    usuario_id SERIAL NOT NULL,
     cuenta_id VARCHAR(80) NOT NULL,
     correo VARCHAR(200) NOT NULL,
     nombre VARCHAR(200) NOT NULL,
@@ -28,13 +44,44 @@ CREATE TABLE usuario
     UNIQUE (cuenta_id)
 );
 
+CREATE TABLE descuento
+(
+    descuento_id SERIAL NOT NULL,
+    fecha_inicial DATE NOT NULL DEFAULT CURRENT_DATE,
+    fecha_final DATE NOT NULL DEFAULT CURRENT_DATE + INTEGER '1',
+    porcentaje SMALLINT NOT NULL DEFAULT 20,
+    PRIMARY KEY (descuento_id),
+    UNIQUE (fecha_inicial, fecha_final, porcentaje)
+);
+
+CREATE TABLE iva
+(
+    iva_id SMALLSERIAL NOT NULL,
+    fecha DATE NOT NULL DEFAULT CURRENT_DATE,
+    porcentaje SMALLINT NOT NULL DEFAULT 19,
+    PRIMARY KEY (iva_id),
+    UNIQUE (fecha, porcentaje)
+);
+
+CREATE TABLE precio
+(
+    precio_id SERIAL NOT NULL,
+    fecha DATE NOT NULL DEFAULT CURRENT_DATE,
+    precio INT NOT NULL,
+    PRIMARY KEY (precio_id),
+    UNIQUE (fecha, precio)
+);
+
 CREATE TABLE detalle
 (
     detalle_id SERIAL NOT NULL,
+    detalle_tipo_id CHAR NOT NULL,
     nombre VARCHAR(60) NOT NULL,
-    tipo CHAR NOT NULL,
     PRIMARY KEY (detalle_id),
-    UNIQUE (nombre)
+    UNIQUE (nombre),
+	FOREIGN KEY (detalle_tipo_id) REFERENCES detalle_tipo(detalle_tipo_id)
+        ON UPDATE CASCADE
+		ON DELETE CASCADE
 );
 
 CREATE TABLE sede
@@ -43,7 +90,7 @@ CREATE TABLE sede
     codigo VARCHAR(40) NOT NULL,
     NIT VARCHAR(20) NOT NULL,
     direccion VARCHAR(60) NOT NULL,
-    telefono BIGINT NOT NULL,
+    telefono VARCHAR(16) NOT NULL,
     control_manual BOOLEAN NOT NULL DEFAULT FALSE,
     abierto BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (sede_id),
@@ -65,13 +112,15 @@ CREATE TABLE horario
 
 CREATE TABLE cliente
 (
-    cliente_id VARCHAR(25) NOT NULL,
+    cliente_id SERIAL NOT NULL,
+    cliente_doc_id VARCHAR(25) NOT NULL,
     nombre VARCHAR(60) NOT NULL,
     apellido VARCHAR(60) NOT NULL,
     id_tipo_id CHAR NOT NULL,
-    telefono BIGINT NOT NULL,
+    telefono VARCHAR(16) NOT NULL,
     direccion VARCHAR(60) NOT NULL,
     nacimiento DATE NOT NULL DEFAULT CURRENT_DATE,
+    UNIQUE (cliente_doc_id),
     PRIMARY KEY (cliente_id),
 	FOREIGN KEY (id_tipo_id) REFERENCES tipo_id(id_tipo_id)
         ON UPDATE CASCADE
@@ -81,16 +130,17 @@ CREATE TABLE cliente
 CREATE TABLE producto
 (
     producto_id SERIAL NOT NULL,
-    nombre VARCHAR(60) NOT NULL,
+    nombre VARCHAR(120) NOT NULL,
     codigo VARCHAR(30) NOT NULL,
-    categoria_id SMALLSERIAL NOT NULL,
+    categoria_id SMALLINT NOT NULL,
     imagen VARCHAR(300) NOT NULL,
     descripcion VARCHAR(300) NOT NULL,
     PRIMARY KEY (producto_id),
     UNIQUE (nombre),
+    UNIQUE (codigo),
     UNIQUE (imagen),
     UNIQUE (descripcion),
-    FOREIGN KEY (categoria_id) REFERENCES categoria(categora_id)
+    FOREIGN KEY (categoria_id) REFERENCES categoria(categoria_id)
         ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
@@ -111,10 +161,12 @@ CREATE TABLE detalle_producto
 CREATE TABLE descuento_producto
 (
     producto_id INT NOT NULL,
-    fecha DATE NOT NULL DEFAULT CURRENT_DATE,
-    porcentaje SMALLINT NOT NULL DEFAULT 20,
-    PRIMARY KEY (producto_id, fecha),
+    descuento_id INT NOT NULL,
+    PRIMARY KEY (producto_id, descuento_id),
 	FOREIGN KEY (producto_id) REFERENCES producto(producto_id)
+        ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	FOREIGN KEY (descuento_id) REFERENCES descuento(descuento_id)
         ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
@@ -122,10 +174,12 @@ CREATE TABLE descuento_producto
 CREATE TABLE iva_producto
 (
     producto_id INT NOT NULL,
-    fecha DATE NOT NULL DEFAULT CURRENT_DATE,
-    porcentaje SMALLINT NOT NULL DEFAULT 19,
-    PRIMARY KEY (producto_id, fecha),
+    iva_id SMALLINT NOT NULL,
+    PRIMARY KEY (producto_id, iva_id),
 	FOREIGN KEY (producto_id) REFERENCES producto(producto_id)
+        ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	FOREIGN KEY (iva_id) REFERENCES iva(iva_id)
         ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
@@ -133,10 +187,12 @@ CREATE TABLE iva_producto
 CREATE TABLE precio_producto
 (
     producto_id INT NOT NULL,
-    fecha DATE NOT NULL DEFAULT CURRENT_DATE,
-    precio BIGINT NOT NULL,
-    PRIMARY KEY (producto_id, fecha),
+    precio_id INT NOT NULL,
+    PRIMARY KEY (producto_id, precio_id),
 	FOREIGN KEY (producto_id) REFERENCES producto(producto_id)
+        ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	FOREIGN KEY (precio_id) REFERENCES precio(precio_id)
         ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
@@ -168,8 +224,9 @@ CREATE TABLE factura
     factura_id SERIAL NOT NULL,
     numero UUID NOT NULL,
     sede_id SMALLINT NOT NULL,
-    cliente_id VARCHAR(25) NOT NULL,
+    cliente_id INT NOT NULL,
     tiempo TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (numero),
     PRIMARY KEY (factura_id),
 	FOREIGN KEY (sede_id) REFERENCES sede(sede_id)
         ON UPDATE CASCADE
@@ -195,7 +252,7 @@ CREATE TABLE factura_producto
 
 CREATE TABLE venta
 (
-    usuario_id BIGINT NOT NULL,
+    usuario_id INT NOT NULL,
     factura_id INT NOT NULL,
     PRIMARY KEY (usuario_id, factura_id),
 	FOREIGN KEY (usuario_id) REFERENCES usuario(usuario_id)
@@ -206,25 +263,30 @@ CREATE TABLE venta
 		ON DELETE CASCADE
 );
 
-CREATE TABLE efectivo
+CREATE TABLE pago_efectivo
 (
     factura_id INT NOT NULL,
+    pago INT NOT NULL,
     PRIMARY KEY (factura_id),
 	FOREIGN KEY (factura_id) REFERENCES factura(factura_id)
         ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
 
-CREATE TABLE tarjeta
+CREATE TABLE pago_tarjeta
 (
     factura_id INT NOT NULL,
+    tipo_tarjeta_id CHAR NOT NULL,
     tarjeta_id VARCHAR(16) NOT NULL,
     aprobacion_id VARCHAR(25) NOT NULL,
     aprobacion_tiempo TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     aprobacion_entidad VARCHAR(50) NOT NULL,
-    tipo_tarjeta CHAR NOT NULL,
-    PRIMARY KEY (factura_id),
+    pago INT NOT NULL,
+    PRIMARY KEY (factura_id, tipo_tarjeta_id),
 	FOREIGN KEY (factura_id) REFERENCES factura(factura_id)
+        ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	FOREIGN KEY (tipo_tarjeta_id) REFERENCES tipo_tarjeta(tipo_tarjeta_id)
         ON UPDATE CASCADE
 		ON DELETE CASCADE
 );

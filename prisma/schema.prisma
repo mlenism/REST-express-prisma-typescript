@@ -145,10 +145,11 @@ model pago_tarjeta {
 model precio {
   precio_id       Int               @id @default(autoincrement())
   fecha           DateTime          @default(dbgenerated("CURRENT_DATE")) @db.Date
-  precio          Int
+  costo           Int
+  valor_agregado  Int
   precio_producto precio_producto[]
 
-  @@unique([fecha, precio], name: "precio_fecha_precio_key")
+  @@unique([fecha, costo, valor_agregado], name: "precio_fecha_costo_valor_agregado_key")
 }
 
 model precio_producto {

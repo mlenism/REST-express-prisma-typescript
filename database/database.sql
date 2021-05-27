@@ -67,9 +67,10 @@ CREATE TABLE precio
 (
     precio_id SERIAL NOT NULL,
     fecha DATE NOT NULL DEFAULT CURRENT_DATE,
-    precio INT NOT NULL,
+    costo INT NOT NULL,
+    valor_agregado INT NOT NULL,
     PRIMARY KEY (precio_id),
-    UNIQUE (fecha, precio)
+    UNIQUE (fecha, costo, valor_agregado)
 );
 
 CREATE TABLE detalle

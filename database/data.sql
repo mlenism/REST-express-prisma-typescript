@@ -27,7 +27,7 @@ INSERT INTO producto  VALUES (6, 'Pollo frito al estilo japonés', '00000000006'
 INSERT INTO producto  VALUES (7, 'Zumo de manzana, piña y zanahoria', '00000000007', 3, 'https://sevilla.abc.es/gurme/wp-content/uploads/sites/24/2013/08/zuma-manzana-zanahoria-960x540.jpg', 'Este zumo es antioxidante, gracias al betacaroteno de la zanahoria, depurativo, gracias a la piña y digestivo, gracias a la manzana. Es ideal en ayunas para comenzar el día y como suplemento vitamínico y limpiador del organismo cuando se sigue una dieta de adelgazamiento.');
 INSERT INTO producto  VALUES (8, 'Piña colada', '00000000008', 3, 'https://cdn2.cocinadelirante.com/sites/default/files/images/2019/04/receta-facil-de-agua-de-avena-con-pina-y-coco.jpg', 'Este cóctel va a destacar por su alto contenido en vitaminas y minerales, además de sustancias de acción antioxidantes, que nos van a ayudar a reducir el riesgo de contraer enfermedades degenerativas y crónicas. También merece destacar su importante aporte de fibra.');
 INSERT INTO producto  VALUES (9, 'Daikiri de plátano', '00000000009', 3, 'https://us.emedemujer.com/wp-content/uploads/sites/3/2018/07/Daiquiri-de-banana.jpg', 'Bebida muy refresacandte, con mucho sabor, espesa y con un alto contenido de alcohol.');
-INSERT INTO producto  VALUES (10, 'Tarta de chocolate', '00000000010', 4, 'https://www.cocinacaserayfacil.net/wp-content/uploads/2017/04/tarta-de-chocolate-sin-horno.jpg', 'Tarta sencilla y suave, con un delicioso sabor a chocolate.');
+INSERT INTO producto  VALUES (10, 'Tarta de chocolate', '00000000010', 4, 'https://lamovidanet.files.wordpress.com/2017/04/tarta-de-chocolate-sin-horno.jpg', 'Tarta sencilla y suave, con un delicioso sabor a chocolate.');
 INSERT INTO producto  VALUES (11, 'Tortitas con salteado de ternera', '00000000011', 5, 'https://sevilla.abc.es/gurme/wp-content/uploads/sites/24/2011/10/tortitas-con-salteado-de-ternera-960x540.jpg', 'Divertidas de comer, estas tortitas encandilarán a los más pequeños de la casa.');
 
 INSERT INTO iva VALUES (1, '2020-01-01', 19);
@@ -44,17 +44,17 @@ INSERT INTO iva_producto VALUES (9, 1);
 INSERT INTO iva_producto VALUES (10, 1);
 INSERT INTO iva_producto VALUES (11, 1);
 
-INSERT INTO precio VALUES (1, '2020-08-24', 10000);
-INSERT INTO precio VALUES (2, '2021-01-10', 11000);
-INSERT INTO precio VALUES (3, '2020-08-29', 10000);
-INSERT INTO precio VALUES (4, '2021-01-10', 8000);
-INSERT INTO precio VALUES (5, '2021-01-25', 9000);
-INSERT INTO precio VALUES (6, '2021-01-25', 12000);
-INSERT INTO precio VALUES (7, '2021-01-01', 18000);
-INSERT INTO precio VALUES (8, '2021-01-25', 19000);
-INSERT INTO precio VALUES (9, '2021-01-25', 20000);
-INSERT INTO precio VALUES (10, '2021-01-25', 6000);
-INSERT INTO precio VALUES (11, '2021-01-25', 7000);
+INSERT INTO precio VALUES (1, '2020-08-24', 8000, 2000);
+INSERT INTO precio VALUES (2, '2021-01-10', 9000, 2000);
+INSERT INTO precio VALUES (3, '2020-08-29', 8000, 2000);
+INSERT INTO precio VALUES (4, '2021-01-10', 6000, 2000);
+INSERT INTO precio VALUES (5, '2021-01-25', 7000, 2000);
+INSERT INTO precio VALUES (6, '2021-01-25', 10000, 2000);
+INSERT INTO precio VALUES (7, '2021-01-01', 15000, 3000);
+INSERT INTO precio VALUES (8, '2021-01-25', 16000, 3000);
+INSERT INTO precio VALUES (9, '2021-01-25', 17000, 3000);
+INSERT INTO precio VALUES (10, '2021-01-25', 4500, 1500);
+INSERT INTO precio VALUES (11, '2021-01-25', 5000, 2000);
 
 INSERT INTO precio_producto VALUES (1, 1);
 INSERT INTO precio_producto VALUES (1, 2);
@@ -79,9 +79,8 @@ INSERT INTO descuento VALUES (3, '2021-05-17', '2021-05-18', 20);
 
 INSERT INTO descuento_producto VALUES (1, 1);
 INSERT INTO descuento_producto VALUES (2, 2);
-INSERT INTO descuento_producto VALUES (3, 3);
+INSERT INTO descuento_producto VALUES (2, 3);
 INSERT INTO descuento_producto VALUES (4, 1);
-INSERT INTO descuento_producto VALUES (5, 2);
 INSERT INTO descuento_producto VALUES (6, 3);
 INSERT INTO descuento_producto VALUES (7, 1);
 INSERT INTO descuento_producto VALUES (8, 2);

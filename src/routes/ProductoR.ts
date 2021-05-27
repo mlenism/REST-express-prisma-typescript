@@ -12,6 +12,7 @@ class ProductoR {
 
   private config() {
     this.router.get('/', productoC.getMany);
+    this.router.get('/one', productoC.getOne);
   }
 
   public getRouter(): Router {

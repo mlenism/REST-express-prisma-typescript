@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import loginC from '../controllers/LoginC';
+import detalleC from '../controllers/DetalleC';
 
-class LoginR {
+class DetalleR {
 
   private router: Router;
 
@@ -11,8 +11,7 @@ class LoginR {
   }
 
   private config() {
-    this.router.post('/', loginC.post);
-    this.router.post('/in', loginC.postLog);
+    this.router.get('/', detalleC.getMany);
   }
 
   public getRouter(): Router {
@@ -20,5 +19,5 @@ class LoginR {
   }
 }
 
-const loginR = new LoginR();
-export default loginR.getRouter();
+const detalleR = new DetalleR();
+export default detalleR.getRouter();

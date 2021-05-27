@@ -3,10 +3,60 @@ import { googleClient, prisma } from '../Services/Services';
 
 class LoginC {
 
+  public async postLog(req: Request, res: Response): Promise<Response> {
+    try {
+      const { tokenId } = req.body;
+      console.log(`El toquen : ${tokenId}\n`);
+      let error: boolean = false;
+      let isUser: boolean = false;
+      let isAdmin: boolean = false;
+
+      await googleClient.verifyIdToken({
+        idToken: tokenId,
+        audience: process.env.CLIENT_ID
+      }).then(
+        async resp => {
+          if (typeof(resp.getUserId()) === 'string') {
+            const existingUser = await prisma.usuario.findUnique({
+              where: {
+                cuenta_id: resp.getUserId() || ''
+              }
+            });
+            if (existingUser) {
+              console.log('Existe usuario\n');
+              isUser = true;
+              isAdmin = existingUser.admin
+            } else {
+              console.log('No existe usuario\n');
+            }
+          } else {
+            console.log(`typeof userId === ${typeof(resp.getUserId())}\n`);
+            error = true;
+          }
+        },
+        err => {
+          console.log(`A ocurrido un error auntenticando\n${err}`)
+          error = true;
+        }
+      )
+      if (error) {
+        return res.status(500)
+      } else {
+        return res.status(200).json({
+          existe: isUser,
+          admin: isAdmin
+        })
+      }
+    } catch (error) {
+      console.log(`Error en la petición post\n${error}`);
+      return res.status(500);
+    }
+  }
+
   public async post(req: Request, res: Response): Promise<Response> {
     try {
       const { tokenId } = req.body;
-      console.log(`El token es ${tokenId} \n\n`);
+      console.log(`El toquen : ${tokenId}\n`);
       let error: boolean = false;
       let isAdmin: boolean = false;
 

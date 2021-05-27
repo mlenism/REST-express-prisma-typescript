@@ -6,6 +6,7 @@ import LoginR from './routes/LoginR';
 import categoriaR from './routes/CategoriaR';
 import usuarioR from './routes/UsuarioR';
 import productoR from './routes/ProductoR';
+import detalleR from './routes/DetalleR';
 
 class Server {
 
@@ -30,6 +31,7 @@ class Server {
     this.app.use('/categoria', categoriaR);
     this.app.use('/usuario', usuarioR);
     this.app.use('/producto', productoR);
+    this.app.use('/detalle', detalleR);
   }
 
   public start(): void {

@@ -1,11 +1,17 @@
+CREATE EXTENSION "pgcrypto";
+
 CREATE TABLE categoria
 (
     categoria_id SMALLSERIAL NOT NULL,
+    numero UUID NOT NULL DEFAULT gen_random_uuid(),
     nombre VARCHAR(60) NOT NULL,
     imagen VARCHAR(300) NOT NULL,
     descripcion VARCHAR(150) NOT NULL,
+    habilitado BOOLEAN NOT NULL DEFAULT TRUE,
     PRIMARY KEY (categoria_id),
-    UNIQUE (nombre)
+    UNIQUE (nombre),
+    UNIQUE (numero),
+    UNIQUE (imagen)
 );
 
 CREATE TABLE tipo_id
@@ -39,6 +45,7 @@ CREATE TABLE usuario
     correo VARCHAR(200) NOT NULL,
     nombre VARCHAR(200) NOT NULL,
     admin BOOLEAN NOT NULL DEFAULT FALSE,
+    habilitado BOOLEAN NOT NULL DEFAULT TRUE,
     PRIMARY KEY (usuario_id),
     UNIQUE (correo),
     UNIQUE (cuenta_id)
@@ -94,6 +101,7 @@ CREATE TABLE sede
     telefono VARCHAR(16) NOT NULL,
     control_manual BOOLEAN NOT NULL DEFAULT FALSE,
     abierto BOOLEAN NOT NULL DEFAULT FALSE,
+    habilitado BOOLEAN NOT NULL DEFAULT TRUE,
     PRIMARY KEY (sede_id),
     UNIQUE (direccion),
     UNIQUE (telefono)
@@ -131,12 +139,15 @@ CREATE TABLE cliente
 CREATE TABLE producto
 (
     producto_id SERIAL NOT NULL,
+    numero UUID NOT NULL DEFAULT gen_random_uuid(),
     nombre VARCHAR(120) NOT NULL,
     codigo VARCHAR(30) NOT NULL,
     categoria_id SMALLINT NOT NULL,
     imagen VARCHAR(300) NOT NULL,
     descripcion VARCHAR(300) NOT NULL,
+    habilitado BOOLEAN NOT NULL DEFAULT TRUE,
     PRIMARY KEY (producto_id),
+    UNIQUE (numero),
     UNIQUE (nombre),
     UNIQUE (codigo),
     UNIQUE (imagen),
@@ -155,8 +166,6 @@ CREATE TABLE detalle_producto
         ON UPDATE CASCADE
 		ON DELETE CASCADE,
 	FOREIGN KEY (detalle_id) REFERENCES detalle(detalle_id)
-        ON UPDATE CASCADE
-		ON DELETE CASCADE
 );
 
 CREATE TABLE descuento_producto
@@ -168,8 +177,6 @@ CREATE TABLE descuento_producto
         ON UPDATE CASCADE
 		ON DELETE CASCADE,
 	FOREIGN KEY (descuento_id) REFERENCES descuento(descuento_id)
-        ON UPDATE CASCADE
-		ON DELETE CASCADE
 );
 
 CREATE TABLE iva_producto
@@ -181,8 +188,6 @@ CREATE TABLE iva_producto
         ON UPDATE CASCADE
 		ON DELETE CASCADE,
 	FOREIGN KEY (iva_id) REFERENCES iva(iva_id)
-        ON UPDATE CASCADE
-		ON DELETE CASCADE
 );
 
 CREATE TABLE precio_producto
@@ -194,26 +199,24 @@ CREATE TABLE precio_producto
         ON UPDATE CASCADE
 		ON DELETE CASCADE,
 	FOREIGN KEY (precio_id) REFERENCES precio(precio_id)
-        ON UPDATE CASCADE
-		ON DELETE CASCADE
 );
 
-CREATE TABLE producto_disponibilidad_inicial
+CREATE TABLE producto_ventas
 (
     producto_id INT NOT NULL,
     tiempo TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    stock_inicial INT NOT NULL,
+    ventas SMALLINT NOT NULL,
     PRIMARY KEY (producto_id, tiempo),
 	FOREIGN KEY (producto_id) REFERENCES producto(producto_id)
         ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
 
-CREATE TABLE producto_disponibilidad_final
+CREATE TABLE producto_disponibilidad
 (
     producto_id INT NOT NULL,
     tiempo TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    stock_final INT NOT NULL,
+    stock SMALLINT NOT NULL,
     PRIMARY KEY (producto_id, tiempo),
 	FOREIGN KEY (producto_id) REFERENCES producto(producto_id)
         ON UPDATE CASCADE
@@ -223,7 +226,7 @@ CREATE TABLE producto_disponibilidad_final
 CREATE TABLE factura
 (
     factura_id SERIAL NOT NULL,
-    numero UUID NOT NULL,
+    numero UUID NOT NULL DEFAULT gen_random_uuid(),
     sede_id SMALLINT NOT NULL,
     cliente_id INT NOT NULL,
     tiempo TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -251,7 +254,7 @@ CREATE TABLE factura_producto
 		ON DELETE CASCADE
 );
 
-CREATE TABLE venta
+CREATE TABLE transaccion
 (
     usuario_id INT NOT NULL,
     factura_id INT NOT NULL,

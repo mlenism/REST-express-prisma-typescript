@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import productoC from '../controllers/ProductoC';
+import productoV  from '../Validators/ProductoV';
 
 class ProductoR {
 
@@ -13,6 +14,9 @@ class ProductoR {
   private config() {
     this.router.get('/', productoC.getMany);
     this.router.get('/one', productoC.getOne);
+    this.router.post('/', productoV.createRules(), productoV.checkErrors, productoC.create);
+    this.router.put('/', productoV.updateRules(), productoV.checkErrors, productoC.update);
+    this.router.delete('/:id', productoV.desactivateRules, productoV.checkErrors, productoC.desactivate)
   }
 
   public getRouter(): Router {

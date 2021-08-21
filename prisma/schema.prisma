@@ -9,9 +9,11 @@ datasource db {
 
 model categoria {
   categoria_id Int        @id @default(autoincrement()) @db.SmallInt
+  numero       String     @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nombre       String     @unique @db.VarChar(60)
-  imagen       String     @db.VarChar(300)
+  imagen       String     @unique @db.VarChar(300)
   descripcion  String     @db.VarChar(150)
+  habilitado   Boolean    @default(true)
   producto     producto[]
 }
 
@@ -72,7 +74,7 @@ model detalle_tipo {
 
 model factura {
   factura_id       Int                @id @default(autoincrement())
-  numero           String             @unique @db.Uuid
+  numero           String             @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   sede_id          Int                @db.SmallInt
   cliente_id       Int
   tiempo           DateTime           @default(now()) @db.Timestamp(6)
@@ -81,7 +83,7 @@ model factura {
   factura_producto factura_producto[]
   pago_efectivo    pago_efectivo?
   pago_tarjeta     pago_tarjeta[]
-  venta            venta[]
+  transaccion      transaccion[]
 }
 
 model factura_producto {
@@ -162,36 +164,38 @@ model precio_producto {
 }
 
 model producto {
-  producto_id                     Int                               @id @default(autoincrement())
-  nombre                          String                            @unique @db.VarChar(120)
-  codigo                          String                            @unique @db.VarChar(30)
-  categoria_id                    Int                               @db.SmallInt
-  imagen                          String                            @unique @db.VarChar(300)
-  descripcion                     String                            @unique @db.VarChar(300)
-  categoria                       categoria                         @relation(fields: [categoria_id], references: [categoria_id])
-  descuento_producto              descuento_producto[]
-  detalle_producto                detalle_producto[]
-  factura_producto                factura_producto[]
-  iva_producto                    iva_producto[]
-  precio_producto                 precio_producto[]
-  producto_disponibilidad_final   producto_disponibilidad_final[]
-  producto_disponibilidad_inicial producto_disponibilidad_inicial[]
+  producto_id             Int                       @id @default(autoincrement())
+  numero                  String                    @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nombre                  String                    @unique @db.VarChar(120)
+  codigo                  String                    @unique @db.VarChar(30)
+  categoria_id            Int                       @db.SmallInt
+  imagen                  String                    @unique @db.VarChar(300)
+  descripcion             String                    @unique @db.VarChar(300)
+  habilitado              Boolean                   @default(true)
+  categoria               categoria                 @relation(fields: [categoria_id], references: [categoria_id])
+  descuento_producto      descuento_producto[]
+  detalle_producto        detalle_producto[]
+  factura_producto        factura_producto[]
+  iva_producto            iva_producto[]
+  precio_producto         precio_producto[]
+  producto_disponibilidad producto_disponibilidad[]
+  producto_ventas         producto_ventas[]
 }
 
-model producto_disponibilidad_final {
+model producto_disponibilidad {
   producto_id Int
   tiempo      DateTime @default(now()) @db.Timestamp(6)
-  stock_final Int
+  stock       Int      @db.SmallInt
   producto    producto @relation(fields: [producto_id], references: [producto_id])
 
   @@id([producto_id, tiempo])
 }
 
-model producto_disponibilidad_inicial {
-  producto_id   Int
-  tiempo        DateTime @default(now()) @db.Timestamp(6)
-  stock_inicial Int
-  producto      producto @relation(fields: [producto_id], references: [producto_id])
+model producto_ventas {
+  producto_id Int
+  tiempo      DateTime @default(now()) @db.Timestamp(6)
+  ventas      Int      @db.SmallInt
+  producto    producto @relation(fields: [producto_id], references: [producto_id])
 
   @@id([producto_id, tiempo])
 }
@@ -204,6 +208,7 @@ model sede {
   telefono       String    @unique @db.VarChar(16)
   control_manual Boolean   @default(false)
   abierto        Boolean   @default(false)
+  habilitado     Boolean   @default(true)
   factura        factura[]
   horario        horario[]
 }
@@ -221,15 +226,16 @@ model tipo_tarjeta {
 }
 
 model usuario {
-  usuario_id Int     @id @default(autoincrement())
-  cuenta_id  String  @unique @db.VarChar(80)
-  correo     String  @unique @db.VarChar(200)
-  nombre     String  @db.VarChar(200)
-  admin      Boolean @default(false)
-  venta      venta[]
+  usuario_id  Int           @id @default(autoincrement())
+  cuenta_id   String        @unique @db.VarChar(80)
+  correo      String        @unique @db.VarChar(200)
+  nombre      String        @db.VarChar(200)
+  admin       Boolean       @default(false)
+  habilitado  Boolean       @default(true)
+  transaccion transaccion[]
 }
 
-model venta {
+model transaccion {
   usuario_id Int
   factura_id Int
   factura    factura @relation(fields: [factura_id], references: [factura_id])

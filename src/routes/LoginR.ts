@@ -12,7 +12,7 @@ class LoginR {
 
   private config() {
     this.router.post('/', loginC.post);
-    this.router.post('/in', loginC.postLog);
+    this.router.post('/in', loginC.findLog);
   }
 
   public getRouter(): Router {

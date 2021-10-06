@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import tipoIdC from '../controllers/TipoIdC';
+import sedeC from '../controllers/sedeC';
 
-class TipoIdR {
+class Sede {
 
   private router: Router;
 
@@ -11,8 +11,8 @@ class TipoIdR {
   }
 
   private config() {
-    this.router.get('/', tipoIdC.getMany);
-    this.router.get('/rol', tipoIdC.getRol);
+    this.router.get('/', sedeC.getSede);
+    this.router.get('/reporte', sedeC.getSedeReporte);
   }
 
   public getRouter(): Router {
@@ -20,5 +20,5 @@ class TipoIdR {
   }
 }
 
-const tipoIdR = new TipoIdR();
-export default tipoIdR.getRouter();
+const sedeR = new Sede();
+export default sedeR.getRouter();

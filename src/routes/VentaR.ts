@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import tipoIdC from '../controllers/TipoIdC';
+import ventaC from '../controllers/VentaC';
 
-class TipoIdR {
+class VentaR {
 
   private router: Router;
 
@@ -11,8 +11,7 @@ class TipoIdR {
   }
 
   private config() {
-    this.router.get('/', tipoIdC.getMany);
-    this.router.get('/rol', tipoIdC.getRol);
+    this.router.post('/', ventaC.makeVenta.bind(ventaC));
   }
 
   public getRouter(): Router {
@@ -20,5 +19,5 @@ class TipoIdR {
   }
 }
 
-const tipoIdR = new TipoIdR();
-export default tipoIdR.getRouter();
+const ventaR = new VentaR();
+export default ventaR.getRouter();

@@ -17,6 +17,18 @@ class LoginC {
           const existingUser = await prisma.usuario.findUnique({
             where: {
               cuenta_id: resp.getUserId() || ''
+            },
+            select: {
+              usuario_rol: {
+                select: {
+                  rol: {
+                    select: {
+                      nombre: true
+                    }
+                  }
+                }
+              },
+              habilitado: true
             }
           }).catch(err => {
             console.log(err);
@@ -24,8 +36,11 @@ class LoginC {
           });
           if (existingUser) {
             console.log('Existe usuario ver admin\n');
-            isUser = true;
-            isAdmin = existingUser.admin
+            isUser = existingUser.habilitado;
+            if (isUser) {
+              isAdmin = existingUser.usuario_rol?.rol.nombre === 'administrador'
+            }
+            console.log(`isAdmin: ${existingUser.usuario_rol?.rol.nombre}`)
           } else {
             console.log('No existe usuario\n');
           }
@@ -39,11 +54,13 @@ class LoginC {
         error = true;
       }
     )
-    return {
+    const data = {
       error: error,
       existe: isUser,
       admin: isAdmin
-    }
+    };
+    console.log(data)
+    return data;
   }
 
   public async findLog(req: Request, res: Response): Promise<Response> {
@@ -63,10 +80,10 @@ class LoginC {
   public async post(req: Request, res: Response): Promise<Response> {
     try {
       console.log(`\n****Post crear log****\n`);
-      const { tokenId } = req.body;
+      const { tokenId, telefono, direccion, fechaNacimiento, numeroid, id} = req.body;
       console.log(`El toquen : ${tokenId.substring(0,10)}\n`);
       let error: boolean = false;
-      let isAdmin: boolean = false;
+      let rol: string = 'cliente';
 
       await googleClient.verifyIdToken({
         idToken: tokenId,
@@ -76,36 +93,106 @@ class LoginC {
           const dataToken = {
             userId: resp.getUserId(),
             email: resp.getPayload()?.email,
-            name: resp.getPayload()?.name
+            name: resp.getPayload()?.given_name,
+            lastName: resp.getPayload()?.family_name,
           }
           console.log(`User id: ${dataToken.userId}\n`)
           console.log(`email: ${dataToken.email}\n`)
           console.log(`name: ${dataToken.name}\n`)
-          if (!(dataToken.userId === null || dataToken.name === undefined ||
-            dataToken.name === undefined)) {
-            try {
-              const existingUser = await prisma.usuario.findUnique({
-                where: {
-                  cuenta_id: dataToken.userId
-                }
-              });
-              if (existingUser) {
-                console.log('Existe usuario');
-                isAdmin = existingUser.admin
-              } else {
-                console.log('No existe usuario, se va a crear\n')
-                const user = await prisma.usuario.create({
-                  data: {
-                      cuenta_id: dataToken.userId || '',
-                      correo: dataToken.email || '',
-                      nombre: dataToken.name || '',
+          if (!(dataToken.userId === null || dataToken.name === undefined || dataToken.name === undefined)) {
+            const existingUser = await prisma.usuario.findUnique({
+              where: {
+                cuenta_id: dataToken.userId
+              },
+              select: {
+                usuario_rol: {
+                  select: {
+                    rol: {
+                      select: {
+                        nombre: true
+                      }
                     }
-                });
+                  }
+                },
+                habilitado: true
+              }
+            });
+            if (existingUser) {
+              console.log('Existe usuario\nHabilitado:');
+              console.log(existingUser.habilitado)
+              if (existingUser.habilitado) {
+                rol = existingUser.usuario_rol?.rol.nombre + '';
+              } else {
+                console.log('Se ha deshabilitado el usuario, se rehabilitará.')
+                await prisma.usuario.update({
+                  where: {
+                    cuenta_id: dataToken.userId
+                  },
+                  data: {
+                    correo: dataToken.email || '',
+                    nombres: dataToken.name || '',
+                    apellidos: dataToken.lastName || '',
+                    telefono: telefono,
+                    direccion: direccion,
+                    nacimiento: new Date(fechaNacimiento),
+                    habilitado: true,
+                    usuario_documento: {
+                      update: {
+                        clave: numeroid,
+                        documento: {
+                          connect: {
+                            nombre: id
+                          }
+                        }
+                      }
+                    }
+                  }
+                }).catch(err => {
+                  console.log(err);
+                  error = true;
+                })
+                if (!error) {
+                  console.log('Usuario rehabilitado')
+                }
+              }
+            } else {
+              console.log('No existe usuario, se va a crear\n')
+              await prisma.usuario.create({
+                data: {
+                  cuenta_id: dataToken.userId || '',
+                  correo: dataToken.email || '',
+                  nombres: dataToken.name || '',
+                  apellidos: dataToken.lastName || '',
+                  telefono: telefono,
+                  direccion: direccion,
+                  nacimiento: new Date(fechaNacimiento),
+                  usuario_documento: {
+                    create: {
+                      documento: {
+                        connect: {
+                          nombre: id
+                        }
+                      },
+                      clave: numeroid
+                    }
+                  },
+                  usuario_rol: {
+                    create: {
+                      rol: {
+                        connect: {
+                          nombre: 'cliente'
+                        }
+                      }
+                    }
+                  }
+                }
+              }).catch(err => {
+                error = true;
+                console.log(err);
+              });
+              if (!error) {
                 console.log('Usuario creado\n')
               }
-            } catch (error) {
-              console.log(`Error al intentar crear usuario\n${error}`);
-              error = true;
             }
           } else {
             console.log(`Valores de la cuenta incompletos`);
@@ -118,13 +205,13 @@ class LoginC {
         }
       )
       if (error) {
-        return res.status(500)
+        return res.status(500).json('error');
       } else {
-        return res.status(200).json({admin: isAdmin})
+        return res.status(200).json({rol: rol})
       }
     } catch (error) {
       console.log(`Error en la petición post\n${error}`);
-      return res.status(500);
+      return res.status(500).json('error');
     }
   }
 

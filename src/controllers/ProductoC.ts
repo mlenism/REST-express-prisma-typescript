@@ -36,16 +36,34 @@ class ProductoC {
                 tiempo: 'desc'
               },
               distinct: ['producto_id']
+            },
+            precio_producto: {
+              select: {
+                precio: {
+                  select: {
+                    costo: true,
+                    valor_agregado: true
+                  },
+                }
+              },
+              orderBy: {
+                precio_id: 'desc'
+              },
+              distinct: ['producto_id']
             }
           }
         });
         for (let i = 0; i < many.length; i++) {
+          const costo = many[i].precio_producto[0].precio.costo;
+          const ganancia = many[i].precio_producto[0].precio.valor_agregado;
+          const precio = costo + ganancia;
           const stock = many[i].producto_disponibilidad[0].stock > 0;
           data.push({
             nombre: many[i].nombre,
             imagen: many[i].imagen,
             descripcion: many[i].descripcion,
-            stock: stock
+            stock: stock,
+            precio: precio
           });
         };
         // Logs

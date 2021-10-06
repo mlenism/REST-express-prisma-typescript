@@ -1,11 +1,18 @@
 -- Datos de prueba
+INSERT INTO tipo_tarjeta VALUES ('1', 'debito');
+INSERT INTO tipo_tarjeta VALUES ('2', 'credito');
+INSERT INTO tipo_tarjeta VALUES ('3', 'corriente');
 
-INSERT INTO tipo_id VALUES ('1', 'cedula de ciudadanía');
-INSERT INTO tipo_id VALUES ('2', 'cedula extranjera');
-INSERT INTO tipo_id VALUES ('3', 'numero de identificación personal');
-INSERT INTO tipo_id VALUES ('4', 'numero de identificación tributaria');
-INSERT INTO tipo_id VALUES ('5', 'tarjeta de identidad');
-INSERT INTO tipo_id VALUES ('6', 'pasaporte');
+INSERT INTO documento VALUES ('1', 'cedula de ciudadanía');
+INSERT INTO documento VALUES ('2', 'cedula extranjera');
+INSERT INTO documento VALUES ('3', 'tarjeta de identidad');
+INSERT INTO documento VALUES ('4', 'pasaporte');
+INSERT INTO documento VALUES ('5', 'numero de identificación personal');
+INSERT INTO documento VALUES ('6', 'numero de identificación tributaria');
+
+INSERT INTO rol VALUES ('1', 'administrador');
+INSERT INTO rol VALUES ('2', 'empleado');
+INSERT INTO rol VALUES ('3', 'cliente');
 
 INSERT INTO detalle_tipo VALUES ('1', 'Ingredientes');
 INSERT INTO detalle_tipo VALUES ('2', 'Acompañamientos');
@@ -26,7 +33,7 @@ INSERT INTO producto (nombre, codigo, categoria_id, imagen, descripcion) VALUES 
 INSERT INTO producto (nombre, codigo, categoria_id, imagen, descripcion) VALUES ('Pollo frito al estilo japonés', '00000000006', 2, 'https://s1.eestatic.com/2019/07/05/cocinillas/recetas/recetas_411470257_127377882_864x486.jpg', 'Ultratierno por dentro, supercrujiente por fuera y lleno de sabor, así es como queda este pollo frito al estilo japonés');
 INSERT INTO producto (nombre, codigo, categoria_id, imagen, descripcion) VALUES ('Zumo de manzana, piña y zanahoria', '00000000007', 3, 'https://sevilla.abc.es/gurme/wp-content/uploads/sites/24/2013/08/zuma-manzana-zanahoria-960x540.jpg', 'Este zumo es antioxidante, gracias al betacaroteno de la zanahoria, depurativo, gracias a la piña y digestivo, gracias a la manzana. Es ideal en ayunas para comenzar el día y como suplemento vitamínico y limpiador del organismo cuando se sigue una dieta de adelgazamiento.');
 INSERT INTO producto (nombre, codigo, categoria_id, imagen, descripcion) VALUES ('Piña colada', '00000000008', 3, 'https://cdn2.cocinadelirante.com/sites/default/files/images/2019/04/receta-facil-de-agua-de-avena-con-pina-y-coco.jpg', 'Este cóctel va a destacar por su alto contenido en vitaminas y minerales, además de sustancias de acción antioxidantes, que nos van a ayudar a reducir el riesgo de contraer enfermedades degenerativas y crónicas. También merece destacar su importante aporte de fibra.');
-INSERT INTO producto (nombre, codigo, categoria_id, imagen, descripcion) VALUES ('Daikiri de plátano', '00000000009', 3, 'https://us.emedemujer.com/wp-content/uploads/sites/3/2018/07/Daiquiri-de-banana.jpg', 'Bebida muy refresacandte, con mucho sabor, espesa y con un alto contenido de alcohol.');
+INSERT INTO producto (nombre, codigo, categoria_id, imagen, descripcion) VALUES ('Daikiri de plátano', '00000000009', 3, 'https://cdn7.kiwilimon.com/recetaimagen/3631/640x426/th5-640x426-12809.jpg.webp', 'Bebida muy refresacandte, con mucho sabor, espesa y con un alto contenido de alcohol.');
 INSERT INTO producto (nombre, codigo, categoria_id, imagen, descripcion) VALUES ('Tarta de chocolate', '00000000010', 4, 'https://lamovidanet.files.wordpress.com/2017/04/tarta-de-chocolate-sin-horno.jpg', 'Tarta sencilla y suave, con un delicioso sabor a chocolate.');
 INSERT INTO producto (nombre, codigo, categoria_id, imagen, descripcion) VALUES ('Tortitas con salteado de ternera', '00000000011', 5, 'https://sevilla.abc.es/gurme/wp-content/uploads/sites/24/2011/10/tortitas-con-salteado-de-ternera-960x540.jpg', 'Divertidas de comer, estas tortitas encandilarán a los más pequeños de la casa.');
 
@@ -74,9 +81,9 @@ INSERT INTO precio_producto VALUES (10, 10);
 INSERT INTO precio_producto VALUES (11, 11);
 
 INSERT INTO descuento DEFAULT VALUES;
-INSERT INTO descuento (fecha_inicial, fecha_final, porcentaje) VALUES ('2021-06-20', '2021-06-25', 20);
-INSERT INTO descuento (fecha_inicial, fecha_final, porcentaje) VALUES ('2021-07-25', '2021-07-27', 25);
-INSERT INTO descuento (fecha_inicial, fecha_final, porcentaje) VALUES ('2021-08-03', '2021-08-05', 30);
+INSERT INTO descuento (fecha_inicial, fecha_final, porcentaje) VALUES ('2021-10-08', '2021-10-10', 20);
+INSERT INTO descuento (fecha_inicial, fecha_final, porcentaje) VALUES ('2021-10-12', '2021-10-15', 25);
+INSERT INTO descuento (fecha_inicial, fecha_final, porcentaje) VALUES ('2021-10-18', '2021-10-25', 30);
 
 INSERT INTO descuento_producto VALUES (1, 1);
 INSERT INTO descuento_producto VALUES (2, 1);
@@ -384,3 +391,39 @@ INSERT INTO detalle_producto VALUES (11, 71);
 INSERT INTO detalle_producto VALUES (11, 59);
 INSERT INTO detalle_producto VALUES (11, 15);
 INSERT INTO detalle_producto VALUES (11, 64);
+
+INSERT INTO sede (codigo, imagen, nit, direccion, telefono) VALUES ('12341', 'http://www.gastroeconomy.com/wp-content/uploads/2012/02/Restaurant.jpg', '12341', 'Cra 1 # 1 3', '311 425 2145');
+INSERT INTO sede (codigo, imagen, nit, direccion, telefono) VALUES ('12342', 'https://media-cdn.tripadvisor.com/media/photo-s/09/c5/2b/5f/amazonico-peixaria-regional.jpg', '12342', 'Cra 2 # 2 3', '311 426 2145');
+INSERT INTO sede (codigo, imagen, nit, direccion, telefono) VALUES ('12343', 'https://media-cdn.tripadvisor.com/media/photo-s/0d/62/55/55/fachada-restaurante-av.jpg', '12343', 'Cra 3 # 3 3', '311 427 2145');
+INSERT INTO sede (codigo, imagen, nit, direccion, telefono) VALUES ('12344', 'https://media-cdn.tripadvisor.com/media/photo-s/12/34/5d/d2/fachada-do-restaurante.jpg', '12344', 'Cra 4 # 4 3', '311 428 2145');
+INSERT INTO sede (codigo, imagen, nit, direccion, telefono) VALUES ('12345', 'https://www.guatemala.com/fotos/2020/11/Pollo-Campero-885x500.jpg', '12345', 'Cra 5 # 5 3', '311 429 2145');
+
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (1, 'Lunes', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (1, 'Martes', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (1, 'Miercoles', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (1, 'Jueves', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (1, 'Viernes', '08:00:00-05:00', '14:00:00-05:00');
+
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (2, 'Lunes', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (2, 'Martes', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (2, 'Miercoles', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (2, 'Jueves', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (2, 'Viernes', '08:00:00-05:00', '14:00:00-05:00');
+
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (3, 'Lunes', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (3, 'Martes', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (3, 'Miercoles', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (3, 'Jueves', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (3, 'Viernes', '08:00:00-05:00', '14:00:00-05:00');
+
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (4, 'Lunes', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (4, 'Martes', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (4, 'Miercoles', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (4, 'Jueves', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (4, 'Viernes', '08:00:00-05:00', '14:00:00-05:00');
+
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (5, 'Lunes', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (5, 'Martes', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (5, 'Miercoles', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (5, 'Jueves', '08:00:00-05:00', '14:00:00-05:00');
+INSERT INTO horario (sede_id, dia, abre, cierra) VALUES (5, 'Viernes', '08:00:00-05:00', '14:00:00-05:00');

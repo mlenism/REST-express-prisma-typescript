@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { body, param, ValidationError, validationResult } from 'express-validator'
-import categoriaC from '../controllers/CategoriaC';
+import { body, param, ValidationError, validationResult } from 'express-validator';
 
 class CategoriaV {
 

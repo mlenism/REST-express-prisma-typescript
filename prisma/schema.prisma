@@ -17,19 +17,6 @@ model categoria {
   producto     producto[]
 }
 
-model cliente {
-  cliente_id     Int       @id @default(autoincrement())
-  cliente_doc_id String    @unique @db.VarChar(25)
-  nombre         String    @db.VarChar(60)
-  apellido       String    @db.VarChar(60)
-  id_tipo_id     String    @db.Char(1)
-  telefono       String    @db.VarChar(16)
-  direccion      String    @db.VarChar(60)
-  nacimiento     DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
-  tipo_id        tipo_id   @relation(fields: [id_tipo_id], references: [id_tipo_id])
-  factura        factura[]
-}
-
 model descuento {
   descuento_id       Int                  @id @default(autoincrement())
   fecha_inicial      DateTime             @default(dbgenerated("CURRENT_DATE")) @db.Date
@@ -72,14 +59,20 @@ model detalle_tipo {
   detalle         detalle[]
 }
 
+model documento {
+  documento_id      String              @id @db.Char(1)
+  nombre            String              @unique @db.VarChar(35)
+  usuario_documento usuario_documento[]
+}
+
 model factura {
   factura_id       Int                @id @default(autoincrement())
   numero           String             @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   sede_id          Int                @db.SmallInt
-  cliente_id       Int
+  usuario_id       Int
   tiempo           DateTime           @default(now()) @db.Timestamp(6)
-  cliente          cliente            @relation(fields: [cliente_id], references: [cliente_id])
   sede             sede               @relation(fields: [sede_id], references: [sede_id])
+  usuario          usuario            @relation(fields: [usuario_id], references: [usuario_id])
   factura_producto factura_producto[]
   pago_efectivo    pago_efectivo?
   pago_tarjeta     pago_tarjeta[]
@@ -134,7 +127,7 @@ model pago_tarjeta {
   factura_id         Int
   tipo_tarjeta_id    String       @db.Char(1)
   tarjeta_id         String       @db.VarChar(16)
-  aprobacion_id      String       @db.VarChar(25)
+  aprobacion_id      String       @db.VarChar(50)
   aprobacion_tiempo  DateTime     @default(now()) @db.Timestamp(6)
   aprobacion_entidad String       @db.VarChar(50)
   pago               Int
@@ -200,8 +193,15 @@ model producto_ventas {
   @@id([producto_id, tiempo])
 }
 
+model rol {
+  rol_id      String        @id @db.Char(1)
+  nombre      String        @unique @db.VarChar(13)
+  usuario_rol usuario_rol[]
+}
+
 model sede {
   sede_id        Int       @id @default(autoincrement()) @db.SmallInt
+  imagen         String    @db.VarChar(300)
   codigo         String    @db.VarChar(40)
   nit            String    @db.VarChar(20)
   direccion      String    @unique @db.VarChar(60)
@@ -213,26 +213,10 @@ model sede {
   horario        horario[]
 }
 
-model tipo_id {
-  id_tipo_id String    @id @db.Char(1)
-  nombre     String    @unique @db.VarChar(35)
-  cliente    cliente[]
-}
-
 model tipo_tarjeta {
   tipo_tarjeta_id String         @id @db.Char(1)
   nombre          String         @unique @db.VarChar(40)
   pago_tarjeta    pago_tarjeta[]
-}
-
-model usuario {
-  usuario_id  Int           @id @default(autoincrement())
-  cuenta_id   String        @unique @db.VarChar(80)
-  correo      String        @unique @db.VarChar(200)
-  nombre      String        @db.VarChar(200)
-  admin       Boolean       @default(false)
-  habilitado  Boolean       @default(true)
-  transaccion transaccion[]
 }
 
 model transaccion {
@@ -242,4 +226,35 @@ model transaccion {
   usuario    usuario @relation(fields: [usuario_id], references: [usuario_id])
 
   @@id([usuario_id, factura_id])
+}
+
+model usuario {
+  usuario_id        Int                @id @default(autoincrement())
+  cuenta_id         String             @unique @db.VarChar(80)
+  correo            String             @unique @db.VarChar(200)
+  nombres           String             @db.VarChar(100)
+  apellidos         String             @db.VarChar(100)
+  telefono          String             @db.VarChar(15)
+  direccion         String             @db.VarChar(35)
+  nacimiento        DateTime           @db.Date
+  habilitado        Boolean            @default(true)
+  factura           factura[]
+  transaccion       transaccion[]
+  usuario_documento usuario_documento?
+  usuario_rol       usuario_rol?
+}
+
+model usuario_documento {
+  usuario_id   Int       @id
+  documento_id String    @default("1") @db.Char(1)
+  clave        String    @unique @db.VarChar(20)
+  documento    documento @relation(fields: [documento_id], references: [documento_id])
+  usuario      usuario   @relation(fields: [usuario_id], references: [usuario_id])
+}
+
+model usuario_rol {
+  usuario_id Int     @id
+  rol_id     String  @default("3") @db.Char(1)
+  rol        rol     @relation(fields: [rol_id], references: [rol_id])
+  usuario    usuario @relation(fields: [usuario_id], references: [usuario_id])
 }

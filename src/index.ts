@@ -7,6 +7,10 @@ import categoriaR from './routes/CategoriaR';
 import usuarioR from './routes/UsuarioR';
 import productoR from './routes/ProductoR';
 import detalleR from './routes/DetalleR';
+import asistenteR from './routes/AsistenteR';
+import ventaR from './routes/VentaR';
+import sedeR from './routes/SedeR';
+import reporteR from './routes/ReporteR';
 
 class Server {
 
@@ -32,6 +36,10 @@ class Server {
     this.app.use('/usuario', usuarioR);
     this.app.use('/producto', productoR);
     this.app.use('/detalle', detalleR);
+    this.app.use('/asistente', asistenteR);
+    this.app.use('/venta', ventaR);
+    this.app.use('/sede', sedeR);
+    this.app.use('/reporte', reporteR);
   }
 
   public start(): void {

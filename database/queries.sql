@@ -78,3 +78,14 @@ ORDER BY tb1.producto_id, tb3.fecha DESC NULLS LAST,
 tb4.fecha_inicial DESC NULLS LAST,
 tb5.tiempo DESC NULLS LAST,
 tb7.fecha DESC NULLS LAST;
+
+-- Ver los datos de los usuarios
+SELECT a1.*, a5.nombre AS documento, a2.clave, a4.nombre AS rol FROM usuario AS a1 
+JOIN usuario_documento AS a2
+ON a1.usuario_id = a2.usuario_id
+JOIN usuario_rol AS a3
+ON a1.usuario_id = a3.usuario_id
+JOIN rol as a4
+ON a3.rol_id = a4.rol_id
+JOIN documento AS a5
+ON a2.documento_id = a5.documento_id;

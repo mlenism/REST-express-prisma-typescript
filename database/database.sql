@@ -14,11 +14,19 @@ CREATE TABLE categoria
     UNIQUE (imagen)
 );
 
-CREATE TABLE tipo_id
+CREATE TABLE documento
 (
-    id_tipo_id CHAR NOT NULL,
+    documento_id CHAR NOT NULL,
     nombre VARCHAR(35) NOT NULL,
-    PRIMARY KEY (id_tipo_id),
+    PRIMARY KEY (documento_id),
+    UNIQUE (nombre)
+);
+
+CREATE TABLE rol
+(
+    rol_id CHAR NOT NULL,
+    nombre VARCHAR(13) NOT NULL,
+    PRIMARY KEY (rol_id),
     UNIQUE (nombre)
 );
 
@@ -43,12 +51,43 @@ CREATE TABLE usuario
     usuario_id SERIAL NOT NULL,
     cuenta_id VARCHAR(80) NOT NULL,
     correo VARCHAR(200) NOT NULL,
-    nombre VARCHAR(200) NOT NULL,
-    admin BOOLEAN NOT NULL DEFAULT FALSE,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    telefono VARCHAR(15) NOT NULL,
+    direccion VARCHAR(35) NOT NULL,
+    nacimiento DATE NOT NULL,
     habilitado BOOLEAN NOT NULL DEFAULT TRUE,
     PRIMARY KEY (usuario_id),
     UNIQUE (correo),
     UNIQUE (cuenta_id)
+);
+
+CREATE TABLE usuario_documento
+(
+    usuario_id INT NOT NULL,
+    documento_id CHAR NOT NULL DEFAULT '1',
+    clave VARCHAR(20) NOT NULL,
+    UNIQUE(clave),
+    PRIMARY KEY (usuario_id),
+	FOREIGN KEY (usuario_id) REFERENCES usuario(usuario_id)
+        ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	FOREIGN KEY (documento_id) REFERENCES documento(documento_id)
+        ON UPDATE CASCADE
+		ON DELETE CASCADE
+);
+
+CREATE TABLE usuario_rol
+(
+    usuario_id INT NOT NULL,
+    rol_id CHAR NOT NULL DEFAULT '3',
+    PRIMARY KEY (usuario_id),
+	FOREIGN KEY (usuario_id) REFERENCES usuario(usuario_id)
+        ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	FOREIGN KEY (rol_id) REFERENCES rol(rol_id)
+        ON UPDATE CASCADE
+		ON DELETE CASCADE
 );
 
 CREATE TABLE descuento
@@ -95,6 +134,7 @@ CREATE TABLE detalle
 CREATE TABLE sede
 (
     sede_id SMALLSERIAL NOT NULL,
+    imagen VARCHAR(300) NOT NULL,
     codigo VARCHAR(40) NOT NULL,
     NIT VARCHAR(20) NOT NULL,
     direccion VARCHAR(60) NOT NULL,
@@ -115,23 +155,6 @@ CREATE TABLE horario
     cierra TIME NOT NULL DEFAULT '16:00:00',
     PRIMARY KEY (sede_id, dia),
 	FOREIGN KEY (sede_id) REFERENCES sede(sede_id)
-        ON UPDATE CASCADE
-		ON DELETE CASCADE
-);
-
-CREATE TABLE cliente
-(
-    cliente_id SERIAL NOT NULL,
-    cliente_doc_id VARCHAR(25) NOT NULL,
-    nombre VARCHAR(60) NOT NULL,
-    apellido VARCHAR(60) NOT NULL,
-    id_tipo_id CHAR NOT NULL,
-    telefono VARCHAR(16) NOT NULL,
-    direccion VARCHAR(60) NOT NULL,
-    nacimiento DATE NOT NULL DEFAULT CURRENT_DATE,
-    UNIQUE (cliente_doc_id),
-    PRIMARY KEY (cliente_id),
-	FOREIGN KEY (id_tipo_id) REFERENCES tipo_id(id_tipo_id)
         ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
@@ -228,14 +251,14 @@ CREATE TABLE factura
     factura_id SERIAL NOT NULL,
     numero UUID NOT NULL DEFAULT gen_random_uuid(),
     sede_id SMALLINT NOT NULL,
-    cliente_id INT NOT NULL,
+    usuario_id INT NOT NULL,
     tiempo TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (numero),
     PRIMARY KEY (factura_id),
 	FOREIGN KEY (sede_id) REFERENCES sede(sede_id)
         ON UPDATE CASCADE
 		ON DELETE CASCADE,
-	FOREIGN KEY (cliente_id) REFERENCES cliente(cliente_id)
+	FOREIGN KEY (usuario_id) REFERENCES usuario(usuario_id)
         ON UPDATE CASCADE
 		ON DELETE CASCADE
 );
@@ -282,7 +305,7 @@ CREATE TABLE pago_tarjeta
     factura_id INT NOT NULL,
     tipo_tarjeta_id CHAR NOT NULL,
     tarjeta_id VARCHAR(16) NOT NULL,
-    aprobacion_id VARCHAR(25) NOT NULL,
+    aprobacion_id VARCHAR(50) NOT NULL,
     aprobacion_tiempo TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     aprobacion_entidad VARCHAR(50) NOT NULL,
     pago INT NOT NULL,
